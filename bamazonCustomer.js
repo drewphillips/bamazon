@@ -96,6 +96,7 @@ function updateDB(newQuanity, productName){
   if(err) throw err;
 
   console.log("thanks for making a purchase!");
+  connection.end();
 })
 }
 
