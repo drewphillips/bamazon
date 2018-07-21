@@ -11,3 +11,4 @@ You will be notified that the app is connected to the database and a table will 
 once you select how many you will have your purches confermed and you will be thanked, or you will be notified that there is not sufitiont stock of the product you with to buy.
 
 
+
