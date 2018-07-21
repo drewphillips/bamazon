@@ -58,10 +58,10 @@ function displayProducts() {
         message: "What item would you like to update?",
         choices: itemChoices,
         name: "selectedItem"
-      },
+          },
       {
         type: "input",
-        message: "How many "+ selectedItem" do you want to add?,
+        message: "How many more of this item do you want to add?,
         name: "quantity"
       }
     ]).then(function (answers) {
@@ -74,5 +74,46 @@ function displayProducts() {
       }
     })
   }
+
+
+function checkInventory(item, quantity) {
+    connection.query("SELECT inventory, price FROM products where item =?", [item],
+      function (err, results, fields) {
+        if (err) throw err;
+  
+        console.log(results);
+  
+        let itemsLeft = results[0].inventory;
+        let itemPrice = results[0].price;
+  
+        let totalSale = itemPrice * quantity;
+  
+        if (itemsLeft - quantity >= 0) {
+          console.log(`You just bought ${quantity} ${item}s for $${totalSale}`);
+  
+          updateDB(itemsLeft - quantity, item);
+        } else {
+          console.log(`Sorry insufficient quantity!`);
+        }
+  
+  
+      })
+  }
+  
+  function updateDB(newQuanity, productName) {
+    connection.query("UPDATE products SET ? WHERE ?",
+      [{
+        inventory: newQuanity
+      }, {
+        item: productName
+      }], function (err, results, fields) {
+        if (err) throw err;
+  
+        console.log("thanks for making a purchase!");
+  
+
+      })
+  }
+  
 
   connection.end();
