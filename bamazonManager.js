@@ -51,29 +51,38 @@ function displayProducts() {
     })
   }
 
-  function promptManager(itemChoices) {
-    inquirer.prompt([
-      {
-        type: "list",
-        message: "What item would you like to update?",
-        choices: itemChoices,
-        name: "selectedItem"
-          },
-      {
-        type: "input",
-        message: "How many more of this item do you want to add?,
-        name: "quantity"
-      }
-    ]).then(function (answers) {
-      console.log(answers);
-  
-      if (Number.isInteger(parseInt(answers.quantity))) {
-        checkInventory(answers.selectedItem, answers.quantity)
-      } else {
-        console.log("Item not purchase, please enter a valid number/integer")
-      }
-    })
-  }
+  function promptManager(itemChoices){
+        inquirer.prompt({
+            name: "choose",
+            type: "list",
+            message: "What would you like to do?",
+            choices: [
+                "View my products for sale",
+                "View low inventory items",
+                "Add stock to inventory",
+                "Create a new product",
+                "I'm done!"
+            ]
+        })
+        .then(function (answer) {
+          switch (answer.choose) {
+              case "View my products for sale":
+                  productView();
+                  break;
+
+              case "View low inventory items":
+                  lowInventory();
+                  break;
+
+              case "Add stock to inventory":
+                  addStock();
+                  break;
+
+              case "Create a new product":
+                  newProduct();
+                  break;
+              case "I'm done!":
+                  connection.end();
 
 
 function checkInventory(item, quantity) {
@@ -112,8 +121,4 @@ function checkInventory(item, quantity) {
         console.log("thanks for making a purchase!");
   
 
-      })
-  }
-  
-
-  connection.end();
+      }
