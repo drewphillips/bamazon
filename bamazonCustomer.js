@@ -100,3 +100,5 @@ function updateDB(newQuanity, productName) {
       connection.end();
     })
 }
+
+
