@@ -1,6 +1,8 @@
 # bamazon app
 
-This app has 3 pages, 
+This app has 3 pages, the first bamazonCustomer.js is working, the seconed bamazonManager not so much, the thired was never atempted. You can reviiew my video walk through here or read the instructions below.
+
+https://drive.google.com/file/d/1xvp5tDYBhHmc-edC4UY8LRvktJ-sIXS3/view
 
 Before running the app run a *NPM install* in the console.
 
