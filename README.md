@@ -1,6 +1,6 @@
 # bamazon app
 
-This app has 3 pages, so far only the first is working.
+This app has 3 pages, 
 
 Before running the app run a *NPM install* in the console.
 

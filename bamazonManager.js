@@ -25,46 +25,30 @@ var connection = mysql.createConnection({
   database: "bamazon"
 })
 
-connection.connect(function (err) {
+connection.connect(function (err, res) {
   if (err) throw err;
 
   console.log("connected!")
 
  // connection.end();
-
- displayProducts();
+  
+  managerProgram();
 })
 
-function displayProducts() {
-  var choiceArray = [];
-
-  connection.query("SELECT * FROM products", function (error, results, fields) {
-    if (error) throw error;
-
-    console.table(results);
-
-    for (let i = 0; i < results.length; i++) {
-        choiceArray.push(results[i].item);
-      }
-  
-      promptManager(choiceArray);
-    })
-  }
-
-  function promptManager(itemChoices){
-        inquirer.prompt({
-            name: "choose",
-            type: "list",
-            message: "What would you like to do?",
-            choices: [
-                "View my products for sale",
-                "View low inventory items",
-                "Add stock to inventory",
-                "Create a new product",
-                "I'm done!"
-            ]
-        })
-        .then(function (answer) {
+function managerProgram() {
+  inquirer.prompt({
+      name: "choose",
+      type: "list",
+      message: "What would you like to do?",
+      choices: [
+          "View my products for sale",
+          "View low inventory items",
+          "Add stock to inventory",
+          "Create a new product",
+          "I'm done!"
+      ]
+  })
+      .then(function (answer) {
           switch (answer.choose) {
               case "View my products for sale":
                   productView();
@@ -83,42 +67,122 @@ function displayProducts() {
                   break;
               case "I'm done!":
                   connection.end();
-
-
-function checkInventory(item, quantity) {
-    connection.query("SELECT inventory, price FROM products where item =?", [item],
-      function (err, results, fields) {
-        if (err) throw err;
-  
-        console.log(results);
-  
-        let itemsLeft = results[0].inventory;
-        let itemPrice = results[0].price;
-  
-        let totalSale = itemPrice * quantity;
-  
-        if (itemsLeft - quantity >= 0) {
-          console.log(`You just bought ${quantity} ${item}s for $${totalSale}`);
-  
-          updateDB(itemsLeft - quantity, item);
-        } else {
-          console.log(`Sorry insufficient quantity!`);
-        }
-  
-  
+          }
       })
-  }
-  
-  function updateDB(newQuanity, productName) {
-    connection.query("UPDATE products SET ? WHERE ?",
-      [{
-        inventory: newQuanity
-      }, {
-        item: productName
-      }], function (err, results, fields) {
-        if (err) throw err;
-  
-        console.log("thanks for making a purchase!");
-  
 
+}
+
+
+function productView() {
+  console.log("working");
+  connection.query("SELECT * FROM products", function (err, res) {
+      if (err) throw err;
+      console.log("Items available for purchase ")
+      for (var i = 0; i < res.length; i++) {
+          console.log("Item ID: " + res[i].id + "|" + "Item: " + res[i].product_name + "|" + "Department: " + res[i].department_name + "|" + "Price: $" + res[i].price + "|" + "Quantity Available: " + res[i].stock_quantity + "\n");
       }
+  
+  
+  managerProgram    ();
+  })
+}
+
+function lowInventory() {
+  connection.query("SELECT * FROM products WHERE stock_quantity <= 5", function (err, res) {
+      // console.log(res)
+      for (var i = 0; i < res.length; i++) {
+          console.log("Item ID: " + res[i].id + "|" + "Item: " + res[i].product_name + "|" + "Department: " + res[i].department_name + "|" + "Price: $" + res[i].price + "|" + "Quantity Available: " + res[i].stock_quantity + "\n");
+      }
+
+  
+  
+  managerProgram    ();
+  })
+}
+
+function addStock() {
+  connection.query("SELECT * FROM products", function (err, res) {
+      if (err) throw err;
+
+
+      inquirer.prompt([
+
+          {
+              name: "choice",
+              type: "list",
+              choices: function () {
+                  var choicesArray = [];
+                  for (var i = 0; i < res.length; i++) {
+                      choicesArray.push(res[i].product_name);
+
+                  }
+                  // console.log(choicesArray);
+                  return choicesArray;
+              },
+              message: "Which item's inventory would you like to increase?"
+          },
+          {
+              type: "input",
+              message: "How many would you like to add?",
+              name: "quantity"
+          }
+
+      ]).then(function (answer) {
+          connection.query("UPDATE products SET ? WHERE ?", [{ stock_quantity: answer.quantity },
+          {
+              product_name: answer.choice
+          }], function (err, res) {
+              if (err) throw err;
+              console.log("You added " + answer.quantity + " to " + answer.choice);
+          
+          
+          managerProgram    ();
+          })
+
+
+      })
+  })
+
+}
+
+function newProduct(){
+  inquirer.prompt([
+      {type: "input",
+      message: "What is the product name you would like to add?",
+      name: "product"
+  },
+  {
+      type:"list",
+      message: "What department does this item belong in?",
+      choices: [
+          "food",
+          "sports",
+          "gardining"
+      ],
+      name: "department"
+  },
+  {
+      type:"input",
+      message:"How much does this product cost? Please enter only numbers.",
+      name: "price"
+
+  },
+  {
+      type:"input",
+      message: "How many of these do you have? Please enter only numbers.",
+      name: "stock"
+  }
+  ]).then(function(answer){
+      connection.query("INSERT INTO products SET ?",{
+          product_name:answer.product,
+          department_name:answer.department,
+          price:answer.price,
+          stock_quantity:answer.stock
+
+      })
+  
+  
+  managerProgram    ();
+
+  })
+}
